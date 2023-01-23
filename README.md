@@ -5,6 +5,8 @@ The following will need to be provided manually for security reasons:
 
 The Settings.json file is specific to Dataverse and is required for the admin application to function correctly.
 
+This files needs to be located in the same location as the application.
+
 These values must be specific, but for reference, this is the format:
 ```
 {
