@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <Reference Include="AASPGlobalLibrary">
-      <HintPath>..\..\WaynesLibrary\AASPGlobalLibrary\bin\Debug\net6.0-windows\AASPGlobalLibrary.dll</HintPath>
+      <HintPath>..\..\AASPWayne\AASPGlobalLibrary\AASPGlobalLibrary\bin\Debug\net6.0-windows\AASPGlobalLibrary.dll</HintPath>
     </Reference>
   </ItemGroup>
 

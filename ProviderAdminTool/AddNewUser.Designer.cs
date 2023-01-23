@@ -110,6 +110,7 @@
             this.Controls.Add(this.emailTB);
             this.Name = "AddNewUser";
             this.Text = "AddNewUser";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_Closing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

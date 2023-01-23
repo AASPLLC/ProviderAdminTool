@@ -5,20 +5,16 @@ namespace ProviderAdminTool
 {
     public partial class AddNewUser : Form
     {
-        Form1 form = new();
-        string keyvault = "";
-        JSONSettings Settings = new();
-        DataverseHandler dh = new();
+        readonly Form1 form;
+        readonly string keyvault;
+        readonly JSONSettings Settings;
+        readonly DataverseHandler dh;
 
-        public AddNewUser()
+        public AddNewUser(Form1 form, string keyvault, JSONSettings Settings, DataverseHandler dh)
         {
             InitializeComponent();
-        }
-
-        public void SetupForm(Form1 form, string keyvault, JSONSettings Settings, DataverseHandler dh)
-        {
             this.form = form;
-            this.keyvault = keyvault;
+            this.keyvault = keyvault.Trim();
             this.Settings = Settings;
             this.dh = dh;
         }
@@ -40,8 +36,6 @@ namespace ProviderAdminTool
 
                     await dh.CreateAccountDB(Settings.ClientIDSecretName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.DBAccountsSecretName, keyvault, emailTB.Text, smsNumberTB.Text, whatsappIDTB.Text);
                     //await DataverseHandler.CreateAccountDBSecret(Settings.ClientIDSecretName, Settings.ClientSecretSecretName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.DBAccountsSecretName, keyvault, environment, emailTB.Text, smsNumberTB.Text, whatsappIDTB.Text);
-                    form.Button1_Click(sender, e);
-                    form.Show();
                     this.Close();
                 }
                 else
@@ -49,6 +43,12 @@ namespace ProviderAdminTool
             }
             else
                 MessageBox.Show("Email must have a valid email address format");
+        }
+
+        private void Form_Closing(object sender, FormClosingEventArgs e)
+        {
+            form.Button1_Click(sender, e);
+            form.Show();
         }
     }
 }

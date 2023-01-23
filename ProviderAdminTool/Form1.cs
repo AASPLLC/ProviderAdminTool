@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using AASPGlobalLibrary;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ProviderAdminTool
 {
@@ -62,9 +63,9 @@ namespace ProviderAdminTool
                 accountsDB.Rows.Clear();
                 dynamic profile;
                 if (emailTB.Text == "")
-                    profile = await dh.GetAccountsDBJSON(Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text);
+                    profile = await dh.GetAccountsDBJSON(Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text.Trim());
                 else
-                    profile = await dh.GetAccountDBJSON(Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, emailTB.Text);
+                    profile = await dh.GetAccountDBJSON(Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text.Trim(), emailTB.Text.Trim());
 
                 if (profile.value != null)
                 {
@@ -86,8 +87,7 @@ namespace ProviderAdminTool
         private void Button2_Click(object sender, EventArgs e)
         {
             DisableAll();
-            AddNewUser addNewUser = new();
-            addNewUser.SetupForm(this, vaultTB.Text, Settings, dh);
+            AddNewUser addNewUser = new(this, vaultTB.Text, Settings, dh);
             this.Hide();
             addNewUser.ShowDialog();
             EnableAll();
@@ -108,7 +108,11 @@ namespace ProviderAdminTool
             {
                 for (int i = 0; i < names.Count; i++)
                 {
-                    _ = await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i]);
+                    string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
+#pragma warning disable CS8620
+                    _ = await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck);
+                    //Console.WriteLine(await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck));
+#pragma warning restore CS8620
                 }
                 MessageBox.Show("Selected accounts have been deleted");
                 Button1_Click(sender, e);
@@ -138,7 +142,10 @@ namespace ProviderAdminTool
                         { StartingPrefix + Settings.PhoneNumberColumnName, accountsDB.SelectedRows[i].Cells[1].Value.ToString() },
                         { StartingPrefix + Settings.PhoneNumberIDAccountColumnName, accountsDB.SelectedRows[i].Cells[2].Value.ToString() }
                     };
-                    _ = await dh.PatchAccountDB(Settings.PhoneNumberIDColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, profile[StartingPrefix + Settings.EmailAccountColumnName].ToString(), profile);
+                    string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
+#pragma warning disable CS8620
+                    _ = await dh.PatchAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, profile[StartingPrefix + Settings.EmailAccountColumnName].ToString(), profile, crosscheck);
+#pragma warning restore CS8620
                     //Console.WriteLine(await PatchAccountDB(EmailAccountColumnName, DBAccountsSecretName, vaultTB.Text, environmentTB.Text, profile[StartingPrefix + EmailAccountColumnName], profile));
                     Dictionary<string, object> profilesms = new()
                     {
