@@ -67,7 +67,6 @@ namespace ProviderAdminTool
         void EnableAll()
         {
             LoadAccountsBTN.Enabled = true;
-            CreateAccountBTN.Enabled = true;
             UpdateAccountBTN.Enabled = true;
             DeleteAccountBTN.Enabled = true;
             emailTB.Enabled = true;
@@ -106,6 +105,7 @@ namespace ProviderAdminTool
                         //Console.WriteLine(await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck));
 #pragma warning restore CS8620
                     }
+                    CreateAccountBTN.Enabled = true;
                 }
                 else
                 {
@@ -173,6 +173,7 @@ namespace ProviderAdminTool
                         //Console.WriteLine(temp[y]);
                         //}
                     }
+                    CreateAccountBTN.Enabled = true;
                 }
                 else
                 {
@@ -253,6 +254,7 @@ namespace ProviderAdminTool
                         Console.WriteLine(ex.Message);
                         Console.WriteLine(await dh.GetAccountsDBJSON(DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname) as string);
                     }
+                    CreateAccountBTN.Enabled = true;
                 }
                 else
                 {
