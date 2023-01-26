@@ -1,31 +1,44 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using AASPGlobalLibrary;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ProviderAdminTool
 {
     public partial class Form1 : Form
     {
-        readonly JSONSettings Settings = new();
+        int DBType = 0;
+        JSONDataverseSettings DataverseSettings = new();
+        JSONCosmosSettings CosmosSettings = new();
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool AllocConsole();
 
-        readonly static DataverseHandler dh = new();
-        readonly SelectDynamicsEnvironment selectDynamicsEnvironment = new(dh);
-        readonly string StartingPrefix = "";
+        readonly DataverseHandler dh = new();
 
         public Form1()
         {
-            StartingPrefix = selectDynamicsEnvironment.InitializeWithPrefixReturn(dh);
             InitializeComponent();
             AllocConsole();
-            byte[] filebytes = File.ReadAllBytes(Environment.CurrentDirectory + "/Settings.json");
+        }
+
+        public void Init(int dbtype)
+        {
+            DBType = dbtype;
+            if (DBType == 0)
+            {
+                byte[] filebytes = File.ReadAllBytes(Environment.CurrentDirectory + "/DataverseSettings.json");
 #pragma warning disable CS8601
-            Settings = JsonSerializer.Deserialize<JSONSettings>(filebytes);
+                DataverseSettings = JsonSerializer.Deserialize<JSONDataverseSettings>(filebytes);
 #pragma warning restore CS8601
+            }
+            else
+            {
+                byte[] filebytes = File.ReadAllBytes(Environment.CurrentDirectory + "/defaultLibraryCosmos.json");
+#pragma warning disable CS8601
+                CosmosSettings = JsonSerializer.Deserialize<JSONCosmosSettings>(filebytes);
+#pragma warning restore CS8601
+            }
         }
 
         private void Formload(object sender, EventArgs e)
@@ -63,17 +76,17 @@ namespace ProviderAdminTool
                 accountsDB.Rows.Clear();
                 dynamic profile;
                 if (emailTB.Text == "")
-                    profile = await dh.GetAccountsDBJSON(Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text.Trim());
+                    profile = await dh.GetAccountsDBJSON(DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultTB.Text.Trim());
                 else
-                    profile = await dh.GetAccountDBJSON(Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text.Trim(), emailTB.Text.Trim());
+                    profile = await dh.GetAccountDBJSON(DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultTB.Text.Trim(), emailTB.Text.Trim());
 
                 if (profile.value != null)
                 {
                     for (int i = 0; i < profile.value.Count; i++)
                     {
-                        accountsDB.Rows.Add(Globals.FindDynamicDataverseValue(profile, StartingPrefix + Settings.EmailAccountColumnName, i),
-                            Globals.FindDynamicDataverseValue(profile, StartingPrefix + Settings.PhoneNumberColumnName, i),
-                            Globals.FindDynamicDataverseValue(profile, StartingPrefix + Settings.PhoneNumberIDAccountColumnName, i));
+                        accountsDB.Rows.Add(Globals.FindDynamicDataverseValue(profile, DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName, i),
+                            Globals.FindDynamicDataverseValue(profile, DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberColumnName, i),
+                            Globals.FindDynamicDataverseValue(profile, DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberIDAccountColumnName, i));
                     }
                 }
             }
@@ -87,7 +100,7 @@ namespace ProviderAdminTool
         private void Button2_Click(object sender, EventArgs e)
         {
             DisableAll();
-            AddNewUser addNewUser = new(this, vaultTB.Text, Settings, dh);
+            AddNewUser addNewUser = new(this, vaultTB.Text, DataverseSettings, dh);
             this.Hide();
             addNewUser.ShowDialog();
             EnableAll();
@@ -110,7 +123,7 @@ namespace ProviderAdminTool
                 {
                     string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
 #pragma warning disable CS8620
-                    _ = await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck);
+                    _ = await dh.DeleteAccountDB(DataverseSettings.PhoneNumberIDColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck);
                     //Console.WriteLine(await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck));
 #pragma warning restore CS8620
                 }
@@ -138,21 +151,21 @@ namespace ProviderAdminTool
                 {
                     Dictionary<string, object> profile = new()
                     {
-                        { StartingPrefix + Settings.EmailAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
-                        { StartingPrefix + Settings.PhoneNumberColumnName, accountsDB.SelectedRows[i].Cells[1].Value.ToString() },
-                        { StartingPrefix + Settings.PhoneNumberIDAccountColumnName, accountsDB.SelectedRows[i].Cells[2].Value.ToString() }
+                        { DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
+                        { DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberColumnName, accountsDB.SelectedRows[i].Cells[1].Value.ToString() },
+                        { DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberIDAccountColumnName, accountsDB.SelectedRows[i].Cells[2].Value.ToString() }
                     };
                     string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
 #pragma warning disable CS8620
-                    _ = await dh.PatchAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, profile[StartingPrefix + Settings.EmailAccountColumnName].ToString(), profile, crosscheck);
+                    _ = await dh.PatchAccountDB(DataverseSettings.PhoneNumberIDColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultTB.Text, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profile, crosscheck);
 #pragma warning restore CS8620
                     //Console.WriteLine(await PatchAccountDB(EmailAccountColumnName, DBAccountsSecretName, vaultTB.Text, environmentTB.Text, profile[StartingPrefix + EmailAccountColumnName], profile));
                     Dictionary<string, object> profilesms = new()
                     {
-                        { StartingPrefix + Settings.EmailNonAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
-                        { StartingPrefix + "Number", accountsDB.SelectedRows[i].Cells[1].Value.ToString()?.Trim('+') }
+                        { DataverseSettings.StartingPrefix + DataverseSettings.EmailNonAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
+                        { DataverseSettings.StartingPrefix + "Number", accountsDB.SelectedRows[i].Cells[1].Value.ToString()?.Trim('+') }
                     };
-                    _ = await dh.PatchSMSDB(nativeWindow, Settings.DBSMSSecretName, vaultTB.Text, profile[StartingPrefix + Settings.EmailAccountColumnName].ToString(), Settings.FromColumnName, Settings.ToColumnName, Settings.EmailNonAccountColumnName, profilesms);
+                    _ = await dh.PatchSMSDB(nativeWindow, DataverseSettings.DBSMSSecretName, vaultTB.Text, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), DataverseSettings.FromColumnName, DataverseSettings.ToColumnName, DataverseSettings.EmailNonAccountColumnName, profilesms);
                     //_ = await PatchSMSDB(Settings.FromColumnName, Settings.ToColumnName, Settings.EmailNonAccountColumnName, Settings.DBSMSSecretName, vaultTB.Text, environmentTB.Text, profile[StartingPrefix + Settings.EmailAccountColumnName].ToString(), profilesms);
                     //var temp = await PatchSMSDB(FromColumnName, ToColumnName, EmailNonAccountColumnName, DBSMSSecretName, vaultTB.Text, environmentTB.Text, profile[StartingPrefix + EmailAccountColumnName].ToString(), profilesms);
                     //for (int y = 0; y < temp.Count; y++)
@@ -161,10 +174,10 @@ namespace ProviderAdminTool
                     //}
                     Dictionary<string, object> profilewhatsapp = new()
                     {
-                        { StartingPrefix + Settings.EmailNonAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
-                        { StartingPrefix + "Number", accountsDB.SelectedRows[i].Cells[2].Value.ToString() },
+                        { DataverseSettings.StartingPrefix + DataverseSettings.EmailNonAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
+                        { DataverseSettings.StartingPrefix + "Number", accountsDB.SelectedRows[i].Cells[2].Value.ToString() },
                     };
-                    _ = await dh.PatchWhatsAppDB(nativeWindow, Settings.FromColumnName, Settings.ToColumnName, Settings.EmailNonAccountColumnName, Settings.DBWhatsAppSecretName, vaultTB.Text, profile[StartingPrefix + Settings.EmailAccountColumnName].ToString(), profilewhatsapp);
+                    _ = await dh.PatchWhatsAppDB(nativeWindow, DataverseSettings.FromColumnName, DataverseSettings.ToColumnName, DataverseSettings.EmailNonAccountColumnName, DataverseSettings.DBWhatsAppSecretName, vaultTB.Text, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profilewhatsapp);
                     //var temp = await PatchWhatsAppDB(FromColumnName, ToColumnName, EmailNonAccountColumnName, DBWhatsAppSecretName, vaultTB.Text, environmentTB.Text, profile[StartingPrefix + EmailAccountColumnName].ToString(), profilewhatsapp);
                     //for (int y = 0; y < temp.Count; y++)
                     //{
