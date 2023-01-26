@@ -1,13 +1,12 @@
 # ProviderAdminTool
 Provder Admin Tool - This allows admins to quickly and easily create, edit, and delete user accounts in Dataverse only. Cosmos will need to be manually managed in portal.azure.com with secured access at this time.
 
-The following will need to be provided manually for security reasons:
-
-The Settings.json file is specific to Dataverse and is required for the admin application to function correctly.
 
 This files needs to be located in the same location as the application.
 
-These values must be specific, but for reference, this is the format:
+The following will need to be provided manually and must be specific for security reasons.
+
+The DataverseSettings.json file is specific to Dataverse and is required for the admin application to function correctly:
 ```
 {
   "ClientIDSecretName": "",
@@ -22,6 +21,28 @@ These values must be specific, but for reference, this is the format:
   "EmailNonAccountColumnName": "",
   "ToColumnName": "",
   "FromColumnName": ""
+  "StartingPrefix": "smsapp_",
+  "Environment": "DynamicsEnvironmentName"
+}
+```
+The CosmosSettings.json file is specific to Cosmos and is required for the admin application to function correctly:
+```
+{
+  "smsIDName": "",
+  "whatsappIDName": "",
+  "accountsIDName": "",
+  "countersIDName": "",
+  "smsContainerName": "",
+  "whatsappContainerName": "",
+  "accountsContainerName": "",
+  "countersContainerName": "",
+  "RestSiteSecretName": ""
+}
+```
+The Globals.json file is settings to reduce reptitive input is required for the admin application to function correctly:
+```
+{
+  "VaultName": ""
 }
 ```
 
