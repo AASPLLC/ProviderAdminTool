@@ -1,6 +1,5 @@
 # ProviderAdminTool
-Provder Admin Tool - This allows admins to quickly and easily create, edit, and delete user accounts in Dataverse only. Cosmos will need to be manually managed in portal.azure.com with secured access at this time.
-
+Provder Admin Tool - This allows admins to quickly and easily create, edit, and delete user accounts in Cosmos & Dataverse.
 
 This files needs to be located in the same location as the application.
 
