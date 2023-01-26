@@ -47,7 +47,7 @@ namespace ProviderAdminTool
 
         private void Form_Closing(object sender, FormClosingEventArgs e)
         {
-            form.Button1_Click(sender, e);
+            form.LoadAccounts_Click(sender, e);
             form.Show();
         }
     }

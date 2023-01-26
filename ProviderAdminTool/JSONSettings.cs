@@ -15,6 +15,7 @@
         public string? ToColumnName { get; set; }
         public string? FromColumnName { get; set; }
         public string? StartingPrefix { get; set; }
+        public string? Environment { get; set; }
     }
 
     public class JSONCosmosSettings
@@ -27,5 +28,6 @@
         public string? whatsappContainerName { get; set; }
         public string? accountsContainerName { get; set; }
         public string? countersContainerName { get; set; }
+        public string? RestSiteSecretName { get; set; }
     }
 }
