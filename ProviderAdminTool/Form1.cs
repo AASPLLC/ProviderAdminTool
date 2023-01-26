@@ -96,13 +96,23 @@ namespace ProviderAdminTool
             var results = MessageBox.Show(fullmessage, "Confirm Delete", MessageBoxButtons.OKCancel);
             if (results == DialogResult.OK)
             {
-                for (int i = 0; i < names.Count; i++)
+                if (DBType == 0)
                 {
-                    string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
+                    for (int i = 0; i < names.Count; i++)
+                    {
+                        string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
 #pragma warning disable CS8620
-                    _ = await dh.DeleteAccountDB(DataverseSettings.PhoneNumberIDColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, names[i], crosscheck);
-                    //Console.WriteLine(await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck));
+                        _ = await dh.DeleteAccountDB(DataverseSettings.PhoneNumberIDColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, names[i], crosscheck);
+                        //Console.WriteLine(await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck));
 #pragma warning restore CS8620
+                    }
+                }
+                else
+                {
+                    if (accountsDB.SelectedRows.Count > 1)
+                        MessageBox.Show("Only 1 account can be deleted at a time.");
+                    else
+                        Console.WriteLine(await CosmosDBHandler.DeleteAccount(cosmosRestSite, accountsDB.SelectedRows[0].Cells[0].Value.ToString()));
                 }
                 MessageBox.Show("Selected accounts have been deleted");
                 LoadAccounts_Click(sender, e);
