@@ -101,7 +101,7 @@ namespace ProviderAdminTool
                     {
                         string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
 #pragma warning disable CS8620
-                        _ = await dh.DeleteAccountDB(DataverseSettings.PhoneNumberIDColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, names[i], crosscheck);
+                        _ = await dh.DeleteAccountDB(DataverseSettings.AccountDBIDColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, names[i], crosscheck);
                         //Console.WriteLine(await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck));
 #pragma warning restore CS8620
                     }
@@ -141,12 +141,12 @@ namespace ProviderAdminTool
                         Dictionary<string, object> profile = new()
                         {
                             { DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
-                            { DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberColumnName, accountsDB.SelectedRows[i].Cells[1].Value.ToString() },
+                            { DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberAccountColumnName, accountsDB.SelectedRows[i].Cells[1].Value.ToString() },
                             { DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberIDAccountColumnName, accountsDB.SelectedRows[i].Cells[2].Value.ToString() }
                         };
                         string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
 #pragma warning disable CS8620
-                        _ = await dh.PatchAccountDB(DataverseSettings.PhoneNumberIDColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profile, crosscheck);
+                        _ = await dh.PatchAccountDB(DataverseSettings.AccountDBIDColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profile, crosscheck);
 #pragma warning restore CS8620
                         //Console.WriteLine(await PatchAccountDB(EmailAccountColumnName, DBAccountsSecretName, vaultTB.Text, environmentTB.Text, profile[StartingPrefix + EmailAccountColumnName], profile));
                         Dictionary<string, object> profilesms = new()
@@ -235,16 +235,16 @@ namespace ProviderAdminTool
                     {
                         dynamic profile;
                         if (emailTB.Text == "")
-                            profile = Globals.DynamicJsonDeserializer(await dh.GetAccountsDBJSON(DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname));
+                            profile = Globals.DynamicJsonDeserializer(await dh.GetAccountsDBJSON(DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname));
                         else
-                            profile = Globals.DynamicJsonDeserializer(await dh.GetAccountDBJSON(DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, emailTB.Text.Trim()));
+                            profile = Globals.DynamicJsonDeserializer(await dh.GetAccountDBJSON(DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, emailTB.Text.Trim()));
 
                         if (profile.value != null)
                         {
                             for (int i = 0; i < profile.value.Count; i++)
                             {
                                 accountsDB.Rows.Add(Globals.FindDynamicDataverseValue(profile, DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName, i),
-                                    Globals.FindDynamicDataverseValue(profile, DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberColumnName, i),
+                                    Globals.FindDynamicDataverseValue(profile, DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberAccountColumnName, i),
                                     Globals.FindDynamicDataverseValue(profile, DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberIDAccountColumnName, i));
                             }
                         }
@@ -252,7 +252,7 @@ namespace ProviderAdminTool
                     catch(Exception ex)
                     {
                         Console.WriteLine(ex.Message);
-                        Console.WriteLine(await dh.GetAccountsDBJSON(DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname) as string);
+                        Console.WriteLine(await dh.GetAccountsDBJSON(DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname) as string);
                     }
                     CreateAccountBTN.Enabled = true;
                 }

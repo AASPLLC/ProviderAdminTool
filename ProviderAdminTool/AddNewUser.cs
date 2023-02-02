@@ -34,7 +34,7 @@ namespace ProviderAdminTool
                     smsNumberTB.Enabled = false;
                     whatsappIDTB.Enabled = false;
 
-                    await dh.CreateAccountDB(DataverseSettings.ClientIDSecretName, DataverseSettings.PhoneNumberColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, keyvault, emailTB.Text, smsNumberTB.Text, whatsappIDTB.Text);
+                    await dh.CreateAccountDB(DataverseSettings.ClientIDSecretName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, keyvault, emailTB.Text, smsNumberTB.Text, whatsappIDTB.Text);
                     //await DataverseHandler.CreateAccountDBSecret(Settings.ClientIDSecretName, Settings.ClientSecretSecretName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.DBAccountsSecretName, keyvault, environment, emailTB.Text, smsNumberTB.Text, whatsappIDTB.Text);
                     this.Close();
                 }
