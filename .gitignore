@@ -366,3 +366,6 @@ FodyWeavers.xsd
 /ProviderAdminTool/defaultLibraryCosmos.json
 /ProviderAdminTool/CosmosSettings.json
 /ProviderAdminTool/Globals.json
+/ProviderAdminTool/CosmosSettings.json
+/ProviderAdminTool/DataverseSettings.json
+/ProviderAdminTool/Globals.json
