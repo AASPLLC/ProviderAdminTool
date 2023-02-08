@@ -7,7 +7,7 @@ namespace ProviderAdminTool
     {
         int DBType = 0;
         public JSONDataverseSettings DataverseSettings = new();
-        readonly JSONCosmosSettings CosmosSettings = new();
+        public JSONCosmosSettings CosmosSettings = new();
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -32,19 +32,12 @@ namespace ProviderAdminTool
             dh.SetCustomPrefix(environment, DataverseSettings.StartingPrefix);
         }
 
-        public async void Init(int dbtype)
+        public void Init(int dbtype)
         {
             DBType = dbtype;
-
-            dynamic? globalsjson = await Globals.LoadJSONDynamic(Environment.CurrentDirectory + "/Globals.json");
-#pragma warning disable CS8601
-            vaultname = globalsjson?.VaultName;
-
             CreateAccountBTN.Enabled = false;
             cosmosRestSite = "http://localhost:7250/api/Function1";
-            //cosmosRestSite = "https://" + await VaultHandler.GetSecretInteractive(vaultname, CosmosSettings.RestSiteSecretName) + ".azurewebsites.net";
-            DataverseSettings = await Globals.LoadJSON<JSONDataverseSettings>(Environment.CurrentDirectory + "/CosmosSettings.json");
-#pragma warning restore CS8601
+            //cosmosRestSite = "https://" + await VaultHandler.GetSecretInteractive(vaultname, CosmosSettings.RestSiteSecretName) + ".azurewebsites.net/api/Function1";
         }
 
         private void Formload(object sender, EventArgs e)
@@ -252,7 +245,6 @@ namespace ProviderAdminTool
                     catch(Exception ex)
                     {
                         Console.WriteLine(ex.Message);
-                        Console.WriteLine(await dh.GetAccountsDBJSON(DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname) as string);
                     }
                     CreateAccountBTN.Enabled = true;
                 }

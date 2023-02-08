@@ -1,5 +1,4 @@
 ﻿using AASPGlobalLibrary;
-using System;
 
 namespace ProviderAdminTool
 {
@@ -32,10 +31,15 @@ namespace ProviderAdminTool
             Close();
         }
 
-        private void CosmosBTN_Click(object sender, EventArgs e)
+        private async void CosmosBTN_Click(object sender, EventArgs e)
         {
             cosmosBTN.Enabled = false;
             dataverseBTN.Enabled = false;
+            dynamic? globalsjson = await Globals.LoadJSONDynamic(Environment.CurrentDirectory + "/Globals.json");
+#pragma warning disable CS8601
+            form.vaultname = globalsjson?.VaultName;
+            form.CosmosSettings = await Globals.LoadJSON<JSONCosmosSettings>(Environment.CurrentDirectory + "/CosmosSettings.json");
+#pragma warning restore CS8601
             form.Init(1);
             Close();
         }
