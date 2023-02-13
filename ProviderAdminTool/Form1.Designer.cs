@@ -34,9 +34,8 @@
             this.WhatsAppId = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.RoleID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label3 = new System.Windows.Forms.Label();
-            this.emailTB = new System.Windows.Forms.TextBox();
+            this.aadTB = new System.Windows.Forms.TextBox();
             this.LoadAccountsBTN = new System.Windows.Forms.Button();
-            this.CreateAccountBTN = new System.Windows.Forms.Button();
             this.DeleteAccountBTN = new System.Windows.Forms.Button();
             this.UpdateAccountBTN = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.accountsDB)).BeginInit();
@@ -85,40 +84,30 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(12, 15);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(97, 15);
+            this.label3.Size = new System.Drawing.Size(144, 15);
             this.label3.TabIndex = 5;
-            this.label3.Text = "Email To Lookup:";
+            this.label3.Text = "AAD Object ID To Lookup:";
             // 
-            // emailTB
+            // aadTB
             // 
-            this.emailTB.Location = new System.Drawing.Point(132, 12);
-            this.emailTB.Name = "emailTB";
-            this.emailTB.Size = new System.Drawing.Size(723, 23);
-            this.emailTB.TabIndex = 6;
+            this.aadTB.Location = new System.Drawing.Point(162, 12);
+            this.aadTB.Name = "aadTB";
+            this.aadTB.Size = new System.Drawing.Size(693, 23);
+            this.aadTB.TabIndex = 6;
             // 
             // LoadAccountsBTN
             // 
-            this.LoadAccountsBTN.Location = new System.Drawing.Point(132, 41);
+            this.LoadAccountsBTN.Location = new System.Drawing.Point(214, 41);
             this.LoadAccountsBTN.Name = "LoadAccountsBTN";
-            this.LoadAccountsBTN.Size = new System.Drawing.Size(126, 23);
+            this.LoadAccountsBTN.Size = new System.Drawing.Size(141, 23);
             this.LoadAccountsBTN.TabIndex = 7;
-            this.LoadAccountsBTN.Text = "Load Account(s)";
+            this.LoadAccountsBTN.Text = "Refresh Account(s) List";
             this.LoadAccountsBTN.UseVisualStyleBackColor = true;
             this.LoadAccountsBTN.Click += new System.EventHandler(this.LoadAccounts_Click);
             // 
-            // CreateAccountBTN
-            // 
-            this.CreateAccountBTN.Location = new System.Drawing.Point(264, 41);
-            this.CreateAccountBTN.Name = "CreateAccountBTN";
-            this.CreateAccountBTN.Size = new System.Drawing.Size(140, 23);
-            this.CreateAccountBTN.TabIndex = 8;
-            this.CreateAccountBTN.Text = "Create a New Account";
-            this.CreateAccountBTN.UseVisualStyleBackColor = true;
-            this.CreateAccountBTN.Click += new System.EventHandler(this.Button2_Click);
-            // 
             // DeleteAccountBTN
             // 
-            this.DeleteAccountBTN.Location = new System.Drawing.Point(572, 41);
+            this.DeleteAccountBTN.Location = new System.Drawing.Point(523, 41);
             this.DeleteAccountBTN.Name = "DeleteAccountBTN";
             this.DeleteAccountBTN.Size = new System.Drawing.Size(145, 23);
             this.DeleteAccountBTN.TabIndex = 9;
@@ -128,7 +117,7 @@
             // 
             // UpdateAccountBTN
             // 
-            this.UpdateAccountBTN.Location = new System.Drawing.Point(410, 41);
+            this.UpdateAccountBTN.Location = new System.Drawing.Point(361, 41);
             this.UpdateAccountBTN.Name = "UpdateAccountBTN";
             this.UpdateAccountBTN.Size = new System.Drawing.Size(156, 23);
             this.UpdateAccountBTN.TabIndex = 10;
@@ -143,9 +132,8 @@
             this.ClientSize = new System.Drawing.Size(868, 450);
             this.Controls.Add(this.UpdateAccountBTN);
             this.Controls.Add(this.DeleteAccountBTN);
-            this.Controls.Add(this.CreateAccountBTN);
             this.Controls.Add(this.LoadAccountsBTN);
-            this.Controls.Add(this.emailTB);
+            this.Controls.Add(this.aadTB);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.accountsDB);
             this.MaximizeBox = false;
@@ -163,9 +151,8 @@
 
         private DataGridView accountsDB;
         private Label label3;
-        private TextBox emailTB;
+        private TextBox aadTB;
         private Button LoadAccountsBTN;
-        private Button CreateAccountBTN;
         private Button DeleteAccountBTN;
         private Button UpdateAccountBTN;
         private DataGridViewTextBoxColumn AssignedTo;
