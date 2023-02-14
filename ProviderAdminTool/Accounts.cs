@@ -304,7 +304,7 @@ namespace ProviderAdminTool
                 else
                 {
                     oldnames.Clear();
-                    List<CosmosDBHandler.JSONAdminResponse> adminResponses = await CosmosDBHandler.GetAllAccounts(cosmosRestSite);
+                    List<CosmosDBHandler.JSONAdminAccountResponse> adminResponses = await CosmosDBHandler.GetAllAccounts(cosmosRestSite);
                     for (int i = 0; i < adminResponses.Count; i++)
                     {
                         oldnames.Add(adminResponses[i].AssignedTo);

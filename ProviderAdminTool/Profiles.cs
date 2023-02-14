@@ -18,6 +18,7 @@ namespace ProviderAdminTool
         readonly CosmosDBHandler cosmos = new();
         public string vaultname = "";
         string cosmosRestSite = "";
+        readonly List<string> oldnumbers = new();
         readonly SelectTool tool;
 
         public Profiles(SelectTool tool)
@@ -130,10 +131,12 @@ namespace ProviderAdminTool
                 }
                 else
                 {
-                    List<CosmosDBHandler.JSONAdminResponse> adminResponses = await CosmosDBHandler.GetAllAccounts(cosmosRestSite);
+                    List<CosmosDBHandler.JSONAdminProfileResponse> adminResponses = await CosmosDBHandler.GetAllProfiles(cosmosRestSite);
+                    oldnumbers.Clear();
                     for (int i = 0; i < adminResponses.Count; i++)
                     {
-                        profilesDB.Rows.Add(adminResponses[i].AssignedTo, adminResponses[i].PhoneNumber, adminResponses[i].PhoneNumberID, adminResponses[i].RoleID);
+                        oldnumbers.Add(adminResponses[i].PhoneNumber);
+                        profilesDB.Rows.Add(adminResponses[i].PhoneNumber, adminResponses[i].PicturePath, adminResponses[i].DisplayName);
                     }
                 }
             }
@@ -193,11 +196,11 @@ namespace ProviderAdminTool
                             profilesDB.SelectedRows[i].Cells[1].Value ??= "";
                             profilesDB.SelectedRows[i].Cells[2].Value ??= "";
                             Dictionary<string, object> profile = new()
-                        {
-                            { DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberProfileColumnName, profilesDB.SelectedRows[i].Cells[0].Value.ToString() },
-                            { DataverseSettings.StartingPrefix + DataverseSettings.PicturePathProfileColumnName, profilesDB.SelectedRows[i].Cells[1].Value.ToString() },
-                            { DataverseSettings.StartingPrefix + DataverseSettings.DisplayNameProfileColumnName, profilesDB.SelectedRows[i].Cells[2].Value.ToString() }
-                        };
+                            {
+                                { DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberProfileColumnName, profilesDB.SelectedRows[i].Cells[0].Value.ToString() },
+                                { DataverseSettings.StartingPrefix + DataverseSettings.PicturePathProfileColumnName, profilesDB.SelectedRows[i].Cells[1].Value.ToString() },
+                                { DataverseSettings.StartingPrefix + DataverseSettings.DisplayNameProfileColumnName, profilesDB.SelectedRows[i].Cells[2].Value.ToString() }
+                            };
                             string accountresponse = await dh.PatchAccountDB(DataverseSettings.PhoneNumbersDBEndingPrefix, DataverseSettings.PhoneNumberProfileColumnName, profilesDB.SelectedRows[i].Cells[0].Value.ToString(), profile);
                             if (accountresponse != "")
                             {
@@ -205,14 +208,14 @@ namespace ProviderAdminTool
                                 if (CanCreateAccount == DialogResult.Yes)
                                 {
 #pragma warning disable CS8600
-                                    string account = profilesDB.SelectedRows[i].Cells[0].Value.ToString();
+                                    string phonenumber = profilesDB.SelectedRows[i].Cells[0].Value.ToString();
                                     string picturePath = profilesDB.SelectedRows[i].Cells[1].Value.ToString();
                                     string displayName = profilesDB.SelectedRows[i].Cells[2].Value.ToString();
 #pragma warning restore CS8600
-                                    Match match = Regex.Match(account, @"\d+");
+                                    Match match = Regex.Match(phonenumber, @"\d+");
                                     if (match.Success)
                                     {
-                                        account = account.Trim('+').Trim();
+                                        phonenumber = phonenumber.Trim('+').Trim();
 
                                         await dh.CreateAccountDB(
                                             await VaultHandler.GetSecretInteractive(vaultname, DataverseSettings.ClientIDSecretName),
@@ -220,7 +223,7 @@ namespace ProviderAdminTool
                                             DataverseSettings.PicturePathProfileColumnName,
                                             DataverseSettings.PhoneNumberProfileColumnName,
                                             DataverseSettings.DisplayNameProfileColumnName,
-                                            account,
+                                            phonenumber,
                                             picturePath,
                                             displayName);
                                     }
@@ -232,16 +235,38 @@ namespace ProviderAdminTool
                     }
                     else
                     {
-                        /*for (int i = 0; i < accountsDB.SelectedRows.Count; i++)
+                        for (int i = 0; i < profilesDB.SelectedRows.Count; i++)
                         {
-                            Console.WriteLine(await CosmosDBHandler.AddOrUpdateAccount(cosmosRestSite,
-                                accountsDB.SelectedRows[i].Cells[0].Value.ToString(),
-                                accountsDB.SelectedRows[i].Cells[1].Value.ToString(),
-                                accountsDB.SelectedRows[i].Cells[2].Value.ToString(),
-                                accountsDB.SelectedRows[i].Cells[3].Value.ToString()));
-                            Console.WriteLine(await CosmosDBHandler.UpdateSMSAndWhatsAppAssignedUser(cosmosRestSite,
-                                accountsDB.SelectedRows[i].Cells[0].Value.ToString()));
-                        }*/
+                            profilesDB.SelectedRows[i].Cells[1].Value ??= "";
+                            profilesDB.SelectedRows[i].Cells[2].Value ??= "";
+#pragma warning disable CS8600
+                            string phonenumber = profilesDB.SelectedRows[i].Cells[0].Value.ToString();
+                            string picturePath = profilesDB.SelectedRows[i].Cells[1].Value.ToString();
+                            string displayName = profilesDB.SelectedRows[i].Cells[2].Value.ToString();
+#pragma warning restore CS8600
+                            Match match = Regex.Match(phonenumber, @"\d+");
+                            if (match.Success)
+                            {
+                                phonenumber = phonenumber.Trim('+').Trim();
+
+                                if (oldnumbers.Contains(phonenumber))
+                                {
+                                    Console.WriteLine(await CosmosDBHandler.UpdateProfile(cosmosRestSite,
+                                    phonenumber,
+                                    picturePath,
+                                    displayName));
+                                }
+                                else
+                                {
+                                    Console.WriteLine(await CosmosDBHandler.AddProfile(cosmosRestSite,
+                                    phonenumber,
+                                    picturePath,
+                                    displayName));
+                                }
+                            }
+                            else
+                                MessageBox.Show("The Phone Number can only contain numbers.");
+                        }
                     }
                     LoadProfiles_Click(sender, e);
                 }

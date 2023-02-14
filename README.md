@@ -30,21 +30,14 @@ The DataverseSettings.json file is specific to Dataverse and is required for the
 The CosmosSettings.json file is specific to Cosmos and is required for the admin application to function correctly:
 ```
 {
-  "smsIDName": "",
-  "whatsappIDName": "",
-  "accountsIDName": "",
-  "countersIDName": "",
-  "smsContainerName": "",
-  "whatsappContainerName": "",
-  "accountsContainerName": "",
-  "countersContainerName": "",
   "RestSiteSecretName": ""
 }
 ```
 The Globals.json file is settings to reduce reptitive input is required for the admin application to function correctly:
 ```
 {
-  "VaultName": ""
+  "VaultName": "",
+  "DatabaseType":  ""
 }
 ```
 
