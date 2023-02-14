@@ -1,6 +1,6 @@
 ﻿namespace ProviderAdminTool
 {
-    partial class Form1
+    partial class Accounts
     {
         /// <summary>
         ///  Required designer variable.
@@ -60,24 +60,28 @@
             // 
             this.AssignedTo.HeaderText = "Assigned To:";
             this.AssignedTo.Name = "AssignedTo";
+            this.AssignedTo.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.AssignedTo.Width = 300;
             // 
             // PhoneNumber
             // 
             this.PhoneNumber.HeaderText = "SMS Phone Number:";
             this.PhoneNumber.Name = "PhoneNumber";
+            this.PhoneNumber.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.PhoneNumber.Width = 200;
             // 
             // WhatsAppId
             // 
             this.WhatsAppId.HeaderText = "WhatsApp Phone Number ID:";
             this.WhatsAppId.Name = "WhatsAppId";
+            this.WhatsAppId.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.WhatsAppId.Width = 200;
             // 
             // RoleID
             // 
             this.RoleID.HeaderText = "Role ID:";
             this.RoleID.Name = "RoleID";
+            this.RoleID.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             // 
             // label3
             // 
@@ -125,7 +129,7 @@
             this.UpdateAccountBTN.UseVisualStyleBackColor = true;
             this.UpdateAccountBTN.Click += new System.EventHandler(this.UpdateAccountBTN_Click);
             // 
-            // Form1
+            // Accounts
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -138,8 +142,9 @@
             this.Controls.Add(this.accountsDB);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Form1";
-            this.Text = "Provider Admin Tool";
+            this.Name = "Accounts";
+            this.Text = "Accounts";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form_Closed);
             this.Load += new System.EventHandler(this.Formload);
             ((System.ComponentModel.ISupportInitialize)(this.accountsDB)).EndInit();
             this.ResumeLayout(false);

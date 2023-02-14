@@ -10,16 +10,19 @@ The DataverseSettings.json file is specific to Dataverse and is required for the
 {
   "ClientIDSecretName": "",
   "ClientSecretSecretName": "",
-  "DBAccountsSecretName": "",
-  "DBSMSSecretName": "",
-  "DBWhatsAppSecretName": "",
+  "AccountsDBEndingPrefix": "",
+  "SMSDBEndingPrefix": "",
+  "WhatsAppDBEndingPrefix": "",
   "PhoneNumberAccountColumnName": "",
   "PhoneNumberIDAccountColumnName": "",
-  "AccountDBIDColumnName": "",
   "EmailAccountColumnName": "",
   "EmailNonAccountColumnName": "",
   "ToColumnName": "",
-  "FromColumnName": ""
+  "FromColumnName": "",
+  "PhoneNumbersDBEndingPrefix": "",
+  "PhoneNumberProfileColumnName": "",
+  "PicturePathProfileColumnName": "",
+  "DisplayNameProfileColumnName": "",
   "StartingPrefix": "",
   "Environment": ""
 }

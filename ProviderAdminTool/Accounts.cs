@@ -4,27 +4,29 @@ using AASPGlobalLibrary;
 
 namespace ProviderAdminTool
 {
-    public partial class Form1 : Form
+    public partial class Accounts : Form
     {
-        int DBType = 0;
-        public JSONDataverseSettings DataverseSettings = new();
-        public JSONCosmosSettings CosmosSettings = new();
-
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool AllocConsole();
+
+        int DBType = 0;
+        public JSONDataverseSettings DataverseSettings = new();
+        public JSONCosmosSettings CosmosSettings = new();
 
         readonly DataverseHandler dh = new();
         readonly CosmosDBHandler cosmos = new();
         public string vaultname = "";
         string cosmosRestSite = "";
         readonly List<string> oldnames = new();
+        readonly SelectTool tool;
 
-        public Form1()
+        public Accounts(SelectTool tool)
         {
             InitializeComponent();
             AllocConsole();
             DisableAll();
+            this.tool = tool;
         }
 
         class JSONGlobals
@@ -93,7 +95,7 @@ namespace ProviderAdminTool
                     {
                         string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
 #pragma warning disable CS8620
-                        _ = await dh.DeleteAccountDB(DataverseSettings.AccountDBIDColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, names[i], crosscheck);
+                        _ = await dh.DeleteAccountDB(DataverseSettings.AccountsDBEndingPrefix, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, names[i], crosscheck);
                         //Console.WriteLine(await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck));
 #pragma warning restore CS8620
                     }
@@ -139,7 +141,7 @@ namespace ProviderAdminTool
                         };
                         string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
 #pragma warning disable CS8620
-                        string accountresponse = await dh.PatchAccountDB(DataverseSettings.AccountDBIDColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profile, crosscheck);
+                        string accountresponse = await dh.PatchAccountDB(DataverseSettings.AccountsDBEndingPrefix, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profile, crosscheck);
 #pragma warning restore CS8620
                         if (accountresponse == "")
                         {
@@ -148,7 +150,7 @@ namespace ProviderAdminTool
                                 { DataverseSettings.StartingPrefix + DataverseSettings.EmailNonAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
                                 { DataverseSettings.StartingPrefix + "Number", accountsDB.SelectedRows[i].Cells[1].Value.ToString()?.Trim('+') }
                             };
-                            List<string> smsresponses = await dh.PatchSMSDB(nativeWindow, DataverseSettings.DBSMSSecretName, vaultname, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), DataverseSettings.FromColumnName, DataverseSettings.ToColumnName, DataverseSettings.EmailNonAccountColumnName, profilesms);
+                            List<string> smsresponses = await dh.PatchSMSDB(nativeWindow, DataverseSettings.SMSDBEndingPrefix, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), DataverseSettings.FromColumnName, DataverseSettings.ToColumnName, DataverseSettings.EmailNonAccountColumnName, profilesms);
                             if (smsresponses[0] == "Cannot perform runtime binding on a null reference")
                                 Console.WriteLine("No SMS messages found under: " + accountsDB.SelectedRows[i].Cells[0].Value.ToString());
                             Dictionary<string, object> profilewhatsapp = new()
@@ -156,7 +158,7 @@ namespace ProviderAdminTool
                                 { DataverseSettings.StartingPrefix + DataverseSettings.EmailNonAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
                                 { DataverseSettings.StartingPrefix + "Number", accountsDB.SelectedRows[i].Cells[2].Value.ToString() },
                             };
-                            List<string> whatsappresponse = await dh.PatchWhatsAppDB(nativeWindow, DataverseSettings.FromColumnName, DataverseSettings.ToColumnName, DataverseSettings.EmailNonAccountColumnName, DataverseSettings.DBWhatsAppSecretName, vaultname, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profilewhatsapp);
+                            List<string> whatsappresponse = await dh.PatchWhatsAppDB(nativeWindow, DataverseSettings.WhatsAppDBEndingPrefix, DataverseSettings.FromColumnName, DataverseSettings.ToColumnName, DataverseSettings.EmailNonAccountColumnName, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profilewhatsapp);
                             if (whatsappresponse[0] == "Cannot perform runtime binding on a null reference")
                                 Console.WriteLine("No WhatsApp messages found under: " + accountsDB.SelectedRows[i].Cells[0].Value.ToString());
                             MessageBox.Show("Selected accounts have been updated");
@@ -180,7 +182,15 @@ namespace ProviderAdminTool
                                         if (!smsNumber.StartsWith("+"))
                                             smsNumber = "+" + smsNumber;
 
-                                        await dh.CreateAccountDB(DataverseSettings.ClientIDSecretName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, account, smsNumber, whatsappNumber);
+                                        await dh.CreateAccountDB(
+                                            await VaultHandler.GetSecretInteractive(vaultname, DataverseSettings.ClientIDSecretName),
+                                            DataverseSettings.AccountsDBEndingPrefix,
+                                            DataverseSettings.PhoneNumberAccountColumnName,
+                                            DataverseSettings.EmailAccountColumnName,
+                                            DataverseSettings.PhoneNumberIDAccountColumnName,
+                                            account,
+                                            smsNumber,
+                                            whatsappNumber);
                                     }
                                     else
                                         MessageBox.Show("SMS Phone Number & WhatsApp Phone Number ID can only contain numbers.");
@@ -248,17 +258,25 @@ namespace ProviderAdminTool
                 {
                     try
                     {
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+                        string[] DBColumnNames = new[]
+                        {
+                                DataverseSettings.EmailAccountColumnName,
+                                DataverseSettings.PhoneNumberAccountColumnName,
+                                DataverseSettings.PhoneNumberIDAccountColumnName
+                        };
+#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
                         dynamic profile;
                         if (aadTB.Text == "")
                         {
-                            string _results = await dh.GetAccountsDBJSON(DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname);
+                            string _results = await dh.GetAllDBInfoNoFilterJSON(DBColumnNames, DataverseSettings.AccountsDBEndingPrefix);
                             profile = Globals.DynamicJsonDeserializer(_results);
                         }
                         else
                         {
                             if (Guid.TryParse(aadTB.Text, out _))
                             {
-                                string _results = await dh.GetAccountDBJSON(DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.DBAccountsSecretName, vaultname, aadTB.Text.Trim());
+                                string _results = await dh.GetAllDBInfoFilteredJSON(DBColumnNames, 0, aadTB.Text.Trim(), DataverseSettings.AccountsDBEndingPrefix);
                                 profile = Globals.DynamicJsonDeserializer(_results);
                             }
                             else
@@ -299,6 +317,11 @@ namespace ProviderAdminTool
                 MessageBox.Show("Must have environment and internal keyvault name to pull account data.");
             }
             EnableAll();
+        }
+
+        private void Form_Closed(object sender, FormClosedEventArgs e)
+        {
+            tool.Close();
         }
     }
 }
