@@ -73,36 +73,55 @@ namespace ProviderAdminTool
         private async void DeleteAccountBTN_Click(object sender, EventArgs e)
         {
             DisableAll();
-            List<string> names = new();
-            string fullmessage = "Please confirm, you are about to delete the following selected accounts:";
-            for (int i = 0; i < accountsDB.SelectedRows.Count; i++)
+            bool FoundNull = false;
+            foreach (DataGridViewTextBoxCell item in accountsDB.SelectedCells)
             {
-                names.Add(accountsDB.SelectedRows[i].Cells[0].Value.ToString());
-                fullmessage += Environment.NewLine + accountsDB.SelectedRows[i].Cells[0].Value.ToString();
-            }
-            var results = MessageBox.Show(fullmessage, "Confirm Delete", MessageBoxButtons.OKCancel);
-            if (results == DialogResult.OK)
-            {
-                if (DBType == 0)
+                item.OwningRow.Selected = true;
+                //the -1 is to skip the cosmos column
+                int count = item.OwningRow.Cells.Count;
+                if (DBType == 0) count -= 1;
+                for (int i = 0; i < count; i++)
                 {
-                    for (int i = 0; i < names.Count; i++)
+                    if (string.IsNullOrEmpty(item.OwningRow.Cells[i].Value.ToString()))
                     {
-                        string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
-#pragma warning disable CS8620
-                        _ = await dh.DeleteAccountDB(DataverseSettings.AccountsDBEndingPrefix, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, names[i], crosscheck);
-                        //Console.WriteLine(await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck));
-#pragma warning restore CS8620
+                        FoundNull = true;
+                        break;
                     }
                 }
-                else
+            }
+            if (!FoundNull)
+            {
+                List<string> names = new();
+                string fullmessage = "Please confirm, you are about to delete the following selected accounts:";
+                for (int i = 0; i < accountsDB.SelectedRows.Count; i++)
                 {
-                    if (accountsDB.SelectedRows.Count > 1)
-                        MessageBox.Show("Only 1 account can be deleted at a time.");
-                    else
-                        Console.WriteLine(await CosmosDBHandler.DeleteAccount(cosmosRestSite, accountsDB.SelectedRows[0].Cells[0].Value.ToString()));
+                    names.Add(accountsDB.SelectedRows[i].Cells[0].Value.ToString());
+                    fullmessage += Environment.NewLine + accountsDB.SelectedRows[i].Cells[0].Value.ToString();
                 }
-                MessageBox.Show("Selected accounts have been deleted");
-                LoadAccounts_Click(sender, e);
+                var results = MessageBox.Show(fullmessage, "Confirm Delete", MessageBoxButtons.OKCancel);
+                if (results == DialogResult.OK)
+                {
+                    if (DBType == 0)
+                    {
+                        for (int i = 0; i < names.Count; i++)
+                        {
+                            string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
+#pragma warning disable CS8620
+                            _ = await dh.DeleteAccountDB(DataverseSettings.AccountsDBEndingPrefix, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, names[i], crosscheck);
+                            //Console.WriteLine(await dh.DeleteAccountDB(Settings.PhoneNumberIDColumnName, Settings.PhoneNumberIDAccountColumnName, Settings.PhoneNumberColumnName, Settings.EmailAccountColumnName, Settings.DBAccountsSecretName, vaultTB.Text, names[i], crosscheck));
+#pragma warning restore CS8620
+                        }
+                    }
+                    else
+                    {
+                        if (accountsDB.SelectedRows.Count > 1)
+                            MessageBox.Show("Only 1 account can be deleted at a time.");
+                        else
+                            Console.WriteLine(await CosmosDBHandler.DeleteAccount(cosmosRestSite, accountsDB.SelectedRows[0].Cells[0].Value.ToString()));
+                    }
+                    MessageBox.Show("Selected accounts have been deleted");
+                    LoadAccounts_Click(sender, e);
+                }
             }
             EnableAll();
         }
