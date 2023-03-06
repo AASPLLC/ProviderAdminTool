@@ -128,7 +128,6 @@ namespace ProviderAdminTool
             }
             if (!FoundNull)
             {
-
                 string fullmessage = "You are about to modify information for: ";
                 for (int i = 0; i < accountsDB.SelectedRows.Count; i++)
                 {

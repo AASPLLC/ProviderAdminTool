@@ -36,8 +36,9 @@ The CosmosSettings.json file is specific to Cosmos and is required for the admin
 The Globals.json file is settings to reduce reptitive input is required for the admin application to function correctly:
 ```
 {
-  "VaultName": "",
-  "DatabaseType":  ""
+  "PublicVaultName": "",
+  "InternalVaultName": "",
+  "DatabaseType": "0"
 }
 ```
 
