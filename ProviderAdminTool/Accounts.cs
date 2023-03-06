@@ -16,7 +16,7 @@ namespace ProviderAdminTool
 
         readonly DataverseHandler dh = new();
         readonly CosmosDBHandler cosmos = new();
-        public string vaultname = "";
+        public string internalVaultName = "";
         string cosmosRestSite = "";
         readonly List<string> oldnames = new();
         readonly SelectTool tool;
@@ -29,29 +29,23 @@ namespace ProviderAdminTool
             this.tool = tool;
         }
 
-        class JSONGlobals
-        {
-            public string? VaultName { get; set; }
-            public string? DatabaseType { get; set; }
-        }
-
         async void Formload(object sender, EventArgs e)
         {
             JSONGlobals globalsjson = await Globals.LoadJSON<JSONGlobals>(Environment.CurrentDirectory + "/Globals.json");
 #pragma warning disable CS8601
-            vaultname = globalsjson.VaultName;
+            internalVaultName = globalsjson.InternalVaultName;
             DBType = Convert.ToInt32(globalsjson.DatabaseType);
 
             if (DBType == 0)
             {
                 DataverseSettings = await Globals.LoadJSON<JSONDataverseSettings>(Environment.CurrentDirectory + "/DataverseSettings.json");
-                dh.SetCustomPrefix(await VaultHandler.GetSecretInteractive(vaultname, DataverseSettings.Environment), DataverseSettings.StartingPrefix);
+                dh.SetCustomPrefix(await VaultHandler.GetSecretInteractive(globalsjson.PublicVaultName, DataverseSettings.Environment), DataverseSettings.StartingPrefix);
             }
             else if (DBType == 1)
             {
                 CosmosSettings = await Globals.LoadJSON<JSONCosmosSettings>(Environment.CurrentDirectory + "/CosmosSettings.json");
                 //cosmosRestSite = "http://localhost:7250/api/Function1";
-                cosmosRestSite = "https://" + await VaultHandler.GetSecretInteractive(vaultname, CosmosSettings.RestSiteSecretName) + ".azurewebsites.net/api/Function1";
+                cosmosRestSite = "https://" + await VaultHandler.GetSecretInteractive(globalsjson.PublicVaultName, CosmosSettings.RestSiteSecretName) + ".azurewebsites.net/api/Function1";
             }
 #pragma warning restore CS8601
             EnableAll();
@@ -116,108 +110,149 @@ namespace ProviderAdminTool
         private async void UpdateAccountBTN_Click(object sender, EventArgs e)
         {
             DisableAll();
-            string fullmessage = "You are about to modify information for: ";
-            for (int i = 0; i < accountsDB.SelectedRows.Count; i++)
+            bool FoundNull = false;
+            foreach (DataGridViewTextBoxCell item in accountsDB.SelectedCells)
             {
-                fullmessage += Environment.NewLine + accountsDB.SelectedRows[i].Cells[0].Value.ToString();
-            }
-            var results = MessageBox.Show(fullmessage, "Confirm Update", MessageBoxButtons.OKCancel);
-            if (results == DialogResult.OK)
-            {
-                NativeWindow nativeWindow = new();
-                nativeWindow.AssignHandle(Handle);
-
-                if (DBType == 0)
+                item.OwningRow.Selected = true;
+                //the -1 is to skip the cosmos column
+                int count = item.OwningRow.Cells.Count;
+                if (DBType == 0) count -= 1;
+                for (int i = 0; i < count; i++)
                 {
-                    for (int i = 0; i < accountsDB.SelectedRows.Count; i++)
+                    if (string.IsNullOrEmpty(item.OwningRow.Cells[i].Value.ToString()))
                     {
-                        accountsDB.SelectedRows[i].Cells[1].Value ??= "";
-                        accountsDB.SelectedRows[i].Cells[2].Value ??= "";
-                        Dictionary<string, object> profile = new()
-                        {
-                            { DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
-                            { DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberAccountColumnName, accountsDB.SelectedRows[i].Cells[1].Value.ToString() },
-                            { DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberIDAccountColumnName, accountsDB.SelectedRows[i].Cells[2].Value.ToString() }
-                        };
-                        string?[] crosscheck = new[] { accountsDB.SelectedRows[i].Cells[2].Value.ToString(), accountsDB.SelectedRows[i].Cells[1].Value.ToString() };
-#pragma warning disable CS8620
-                        string accountresponse = await dh.PatchAccountDB(DataverseSettings.AccountsDBEndingPrefix, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profile, crosscheck);
-#pragma warning restore CS8620
-                        if (accountresponse == "")
-                        {
-                            Dictionary<string, object> profilesms = new()
-                            {
-                                { DataverseSettings.StartingPrefix + DataverseSettings.EmailNonAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
-                                { DataverseSettings.StartingPrefix + "Number", accountsDB.SelectedRows[i].Cells[1].Value.ToString()?.Trim('+') }
-                            };
-                            List<string> smsresponses = await dh.PatchSMSDB(nativeWindow, DataverseSettings.SMSDBEndingPrefix, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), DataverseSettings.FromColumnName, DataverseSettings.ToColumnName, DataverseSettings.EmailNonAccountColumnName, profilesms);
-                            if (smsresponses[0] == "Cannot perform runtime binding on a null reference")
-                                Console.WriteLine("No SMS messages found under: " + accountsDB.SelectedRows[i].Cells[0].Value.ToString());
-                            Dictionary<string, object> profilewhatsapp = new()
-                            {
-                                { DataverseSettings.StartingPrefix + DataverseSettings.EmailNonAccountColumnName, accountsDB.SelectedRows[i].Cells[0].Value.ToString() },
-                                { DataverseSettings.StartingPrefix + "Number", accountsDB.SelectedRows[i].Cells[2].Value.ToString() },
-                            };
-                            List<string> whatsappresponse = await dh.PatchWhatsAppDB(nativeWindow, DataverseSettings.WhatsAppDBEndingPrefix, DataverseSettings.FromColumnName, DataverseSettings.ToColumnName, DataverseSettings.EmailNonAccountColumnName, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profilewhatsapp);
-                            if (whatsappresponse[0] == "Cannot perform runtime binding on a null reference")
-                                Console.WriteLine("No WhatsApp messages found under: " + accountsDB.SelectedRows[i].Cells[0].Value.ToString());
-                            MessageBox.Show("Selected accounts have been updated");
-                        }
-                        else
-                        {
-                            DialogResult CanCreateAccount = MessageBox.Show("This account does not exist yet, would you like to create it?", "Account Not Found", MessageBoxButtons.YesNo);
-                            if (CanCreateAccount == DialogResult.Yes)
-                            {
-#pragma warning disable CS8600
-                                string account = accountsDB.SelectedRows[i].Cells[0].Value.ToString();
-                                string smsNumber = accountsDB.SelectedRows[i].Cells[1].Value.ToString();
-                                string whatsappNumber = accountsDB.SelectedRows[i].Cells[2].Value.ToString();
-#pragma warning restore CS8600
-                                if (Guid.TryParse(account, out _))
-                                {
-                                    Match match = Regex.Match(smsNumber, @"\d+");
-                                    Match match2 = Regex.Match(whatsappNumber, @"\d+");
-                                    if (match.Success && match2.Success)
-                                    {
-                                        if (!smsNumber.StartsWith("+"))
-                                            smsNumber = "+" + smsNumber;
+                        FoundNull = true;
+                        break;
+                    }
+                }
+            }
+            if (!FoundNull)
+            {
 
-                                        await dh.CreateAccountDB(
-                                            await VaultHandler.GetSecretInteractive(vaultname, DataverseSettings.ClientIDSecretName),
-                                            DataverseSettings.AccountsDBEndingPrefix,
-                                            DataverseSettings.PhoneNumberAccountColumnName,
-                                            DataverseSettings.EmailAccountColumnName,
-                                            DataverseSettings.PhoneNumberIDAccountColumnName,
-                                            account,
-                                            smsNumber,
-                                            whatsappNumber);
+                string fullmessage = "You are about to modify information for: ";
+                for (int i = 0; i < accountsDB.SelectedRows.Count; i++)
+                {
+                    fullmessage += Environment.NewLine + accountsDB.SelectedRows[i].Cells[0].Value.ToString();
+                }
+                var results = MessageBox.Show(fullmessage, "Confirm Update", MessageBoxButtons.OKCancel);
+                if (results == DialogResult.OK)
+                {
+                    NativeWindow nativeWindow = new();
+                    nativeWindow.AssignHandle(Handle);
+
+                    if (DBType == 0)
+                    {
+                        for (int i = 0; i < accountsDB.SelectedRows.Count; i++)
+                        {
+                            accountsDB.SelectedRows[i].Cells[1].Value ??= "";
+                            accountsDB.SelectedRows[i].Cells[2].Value ??= "";
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8600 // Dereference of a possibly null reference.
+                            string AccountID = accountsDB.SelectedRows[i].Cells[0].Value.ToString();
+                            string PhoneNumber = accountsDB.SelectedRows[i].Cells[1].Value.ToString();
+                            string PhoneNumberID = accountsDB.SelectedRows[i].Cells[2].Value.ToString();
+                            AccountID = AccountID.Replace(" ", "");
+                            PhoneNumber = PhoneNumber.Replace(" ", "");
+                            PhoneNumberID = PhoneNumberID.Replace(" ", "");
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning restore CS8600 // Dereference of a possibly null reference.
+                            Dictionary<string, object> profile = new()
+                        {
+                            { DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName, AccountID },
+                            { DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberAccountColumnName, PhoneNumber },
+                            { DataverseSettings.StartingPrefix + DataverseSettings.PhoneNumberIDAccountColumnName, PhoneNumberID }
+                        };
+                            string?[] crosscheck = new[] { PhoneNumberID, PhoneNumber };
+#pragma warning disable CS8620
+                            string accountresponse = await dh.PatchAccountDB(DataverseSettings.AccountsDBEndingPrefix, DataverseSettings.PhoneNumberIDAccountColumnName, DataverseSettings.PhoneNumberAccountColumnName, DataverseSettings.EmailAccountColumnName, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profile, crosscheck);
+#pragma warning restore CS8620
+                            if (accountresponse == "")
+                            {
+                                Dictionary<string, object> profilesms = new()
+                            {
+                                { DataverseSettings.StartingPrefix + DataverseSettings.EmailNonAccountColumnName, AccountID },
+                                { DataverseSettings.StartingPrefix + "Number", PhoneNumber?.Trim('+') }
+                            };
+                                List<string> smsresponses = await dh.PatchSMSDB(nativeWindow, DataverseSettings.SMSDBEndingPrefix, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), DataverseSettings.FromColumnName, DataverseSettings.ToColumnName, DataverseSettings.EmailNonAccountColumnName, profilesms);
+                                if (smsresponses[0] == "Cannot perform runtime binding on a null reference")
+                                    Console.WriteLine("No SMS messages found under: " + AccountID);
+                                Dictionary<string, object> profilewhatsapp = new()
+                            {
+                                { DataverseSettings.StartingPrefix + DataverseSettings.EmailNonAccountColumnName, AccountID },
+                                { DataverseSettings.StartingPrefix + "Number", PhoneNumberID },
+                            };
+                                List<string> whatsappresponse = await dh.PatchWhatsAppDB(nativeWindow, DataverseSettings.WhatsAppDBEndingPrefix, DataverseSettings.FromColumnName, DataverseSettings.ToColumnName, DataverseSettings.EmailNonAccountColumnName, profile[DataverseSettings.StartingPrefix + DataverseSettings.EmailAccountColumnName].ToString(), profilewhatsapp);
+                                if (whatsappresponse[0] == "Cannot perform runtime binding on a null reference")
+                                    Console.WriteLine("No WhatsApp messages found under: " + AccountID);
+                                MessageBox.Show("Selected accounts have been updated");
+                            }
+                            else
+                            {
+                                DialogResult CanCreateAccount = MessageBox.Show("This account does not exist yet, would you like to create it?", "Account Not Found", MessageBoxButtons.YesNo);
+                                if (CanCreateAccount == DialogResult.Yes)
+                                {
+                                    if (Guid.TryParse(AccountID, out _))
+                                    {
+                                        Match match = Regex.Match(PhoneNumber, @"\d+");
+                                        Match match2 = Regex.Match(PhoneNumberID, @"\d+");
+                                        if (match.Success && match2.Success)
+                                        {
+                                            if (!PhoneNumber.StartsWith("+"))
+                                                PhoneNumber = "+" + PhoneNumber;
+
+                                            await dh.CreateAccountDB(
+                                                await VaultHandler.GetSecretInteractive(internalVaultName, DataverseSettings.ClientIDSecretName),
+                                                DataverseSettings.AccountsDBEndingPrefix,
+                                                DataverseSettings.PhoneNumberAccountColumnName,
+                                                DataverseSettings.EmailAccountColumnName,
+                                                DataverseSettings.PhoneNumberIDAccountColumnName,
+                                                AccountID,
+                                                PhoneNumber,
+                                                PhoneNumberID);
+                                        }
+                                        else
+                                            MessageBox.Show("SMS Phone Number & WhatsApp Phone Number ID can only contain numbers.");
                                     }
                                     else
-                                        MessageBox.Show("SMS Phone Number & WhatsApp Phone Number ID can only contain numbers.");
+                                        MessageBox.Show("AAD Object ID must be a valid GUID.");
                                 }
-                                else
-                                    MessageBox.Show("AAD Object ID must be a valid GUID.");
                             }
                         }
                     }
-                }
-                else
-                {
-                    for (int i = 0; i < accountsDB.SelectedRows.Count; i++)
+                    else
                     {
-                        Console.WriteLine(oldnames[accountsDB.SelectedRows[i].Index]);
-                        Console.WriteLine(await CosmosDBHandler.AddOrUpdateAccount(cosmosRestSite,
-                            oldnames[accountsDB.SelectedRows[i].Index],
-                            accountsDB.SelectedRows[i].Cells[0].Value.ToString(),
-                            accountsDB.SelectedRows[i].Cells[1].Value.ToString(),
-                            accountsDB.SelectedRows[i].Cells[2].Value.ToString(),
-                            accountsDB.SelectedRows[i].Cells[3].Value.ToString()));
-                        Console.WriteLine(await CosmosDBHandler.UpdateSMSAndWhatsAppAssignedUser(cosmosRestSite,
-                            oldnames[accountsDB.SelectedRows[i].Index],
-                            accountsDB.SelectedRows[i].Cells[0].Value.ToString()));
+                        for (int i = 0; i < accountsDB.SelectedRows.Count; i++)
+                        {
+                            accountsDB.SelectedRows[i].Cells[1].Value ??= "";
+                            accountsDB.SelectedRows[i].Cells[2].Value ??= "";
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8600 // Dereference of a possibly null reference.
+                            string AccountID = accountsDB.SelectedRows[i].Cells[0].Value.ToString();
+                            string PhoneNumber = accountsDB.SelectedRows[i].Cells[1].Value.ToString();
+                            string PhoneNumberID = accountsDB.SelectedRows[i].Cells[2].Value.ToString();
+                            AccountID = AccountID.Replace(" ", "");
+                            PhoneNumber = PhoneNumber.Replace(" ", "");
+                            PhoneNumberID = PhoneNumberID.Replace(" ", "");
+                            Console.WriteLine(oldnames[accountsDB.SelectedRows[i].Index]);
+                            Console.WriteLine(await CosmosDBHandler.AddOrUpdateAccount(cosmosRestSite,
+                                oldnames[accountsDB.SelectedRows[i].Index],
+                                AccountID,
+                                PhoneNumber,
+                                PhoneNumberID,
+                                accountsDB.SelectedRows[i].Cells[3].Value.ToString().Trim()));
+                            Console.WriteLine(await CosmosDBHandler.UpdateSMSAndWhatsAppAssignedUser(cosmosRestSite,
+                                oldnames[accountsDB.SelectedRows[i].Index],
+                                AccountID));
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning restore CS8600 // Dereference of a possibly null reference.
+                        }
                     }
+                    LoadAccounts_Click(sender, e);
                 }
-                LoadAccounts_Click(sender, e);
+            }
+            else
+            {
+                MessageBox.Show("Empty fields found, cannot create.");
             }
             EnableAll();
         }
@@ -251,7 +286,7 @@ namespace ProviderAdminTool
         public async void LoadAccounts_Click(object sender, EventArgs e)
         {
             DisableAll();
-            if (vaultname != "")
+            if (internalVaultName != "")
             {
                 accountsDB.Rows.Clear();
                 if (DBType == 0)

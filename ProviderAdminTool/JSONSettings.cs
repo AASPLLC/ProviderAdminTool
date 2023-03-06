@@ -25,4 +25,11 @@
     {
         public string? RestSiteSecretName { get; set; }
     }
+
+    public class JSONGlobals
+    {
+        public string? PublicVaultName { get; set; }
+        public string? InternalVaultName { get; set; }
+        public string? DatabaseType { get; set; }
+    }
 }

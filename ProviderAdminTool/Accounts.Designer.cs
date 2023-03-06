@@ -28,128 +28,123 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.accountsDB = new System.Windows.Forms.DataGridView();
-            this.AssignedTo = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.PhoneNumber = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.WhatsAppId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.RoleID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.label3 = new System.Windows.Forms.Label();
-            this.aadTB = new System.Windows.Forms.TextBox();
-            this.LoadAccountsBTN = new System.Windows.Forms.Button();
-            this.DeleteAccountBTN = new System.Windows.Forms.Button();
-            this.UpdateAccountBTN = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.accountsDB)).BeginInit();
-            this.SuspendLayout();
+            accountsDB = new DataGridView();
+            AssignedTo = new DataGridViewTextBoxColumn();
+            PhoneNumber = new DataGridViewTextBoxColumn();
+            WhatsAppId = new DataGridViewTextBoxColumn();
+            RoleID = new DataGridViewTextBoxColumn();
+            label3 = new Label();
+            aadTB = new TextBox();
+            LoadAccountsBTN = new Button();
+            DeleteAccountBTN = new Button();
+            UpdateAccountBTN = new Button();
+            ((System.ComponentModel.ISupportInitialize)accountsDB).BeginInit();
+            SuspendLayout();
             // 
             // accountsDB
             // 
-            this.accountsDB.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            this.accountsDB.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.AssignedTo,
-            this.PhoneNumber,
-            this.WhatsAppId,
-            this.RoleID});
-            this.accountsDB.Location = new System.Drawing.Point(12, 70);
-            this.accountsDB.Name = "accountsDB";
-            this.accountsDB.RowTemplate.Height = 25;
-            this.accountsDB.Size = new System.Drawing.Size(843, 368);
-            this.accountsDB.TabIndex = 0;
-            this.accountsDB.EnabledChanged += new System.EventHandler(this.AccountsDB_EnableChanged);
+            accountsDB.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            accountsDB.Columns.AddRange(new DataGridViewColumn[] { AssignedTo, PhoneNumber, WhatsAppId, RoleID });
+            accountsDB.Location = new Point(12, 70);
+            accountsDB.Name = "accountsDB";
+            accountsDB.RowTemplate.Height = 25;
+            accountsDB.Size = new Size(843, 368);
+            accountsDB.TabIndex = 0;
+            accountsDB.EnabledChanged += AccountsDB_EnableChanged;
             // 
             // AssignedTo
             // 
-            this.AssignedTo.HeaderText = "Assigned To:";
-            this.AssignedTo.Name = "AssignedTo";
-            this.AssignedTo.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.AssignedTo.Width = 300;
+            AssignedTo.HeaderText = "Assigned To:";
+            AssignedTo.Name = "AssignedTo";
+            AssignedTo.Resizable = DataGridViewTriState.False;
+            AssignedTo.Width = 300;
             // 
             // PhoneNumber
             // 
-            this.PhoneNumber.HeaderText = "SMS Phone Number:";
-            this.PhoneNumber.Name = "PhoneNumber";
-            this.PhoneNumber.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.PhoneNumber.Width = 200;
+            PhoneNumber.HeaderText = "SMS Phone Number:";
+            PhoneNumber.Name = "PhoneNumber";
+            PhoneNumber.Resizable = DataGridViewTriState.False;
+            PhoneNumber.Width = 200;
             // 
             // WhatsAppId
             // 
-            this.WhatsAppId.HeaderText = "WhatsApp Phone Number ID:";
-            this.WhatsAppId.Name = "WhatsAppId";
-            this.WhatsAppId.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.WhatsAppId.Width = 200;
+            WhatsAppId.HeaderText = "WhatsApp Phone Number ID:";
+            WhatsAppId.Name = "WhatsAppId";
+            WhatsAppId.Resizable = DataGridViewTriState.False;
+            WhatsAppId.Width = 200;
             // 
             // RoleID
             // 
-            this.RoleID.HeaderText = "Role ID:";
-            this.RoleID.Name = "RoleID";
-            this.RoleID.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            RoleID.HeaderText = "Role ID:";
+            RoleID.Name = "RoleID";
+            RoleID.Resizable = DataGridViewTriState.False;
             // 
             // label3
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 15);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(144, 15);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "AAD Object ID To Lookup:";
+            label3.AutoSize = true;
+            label3.Location = new Point(12, 15);
+            label3.Name = "label3";
+            label3.Size = new Size(144, 15);
+            label3.TabIndex = 5;
+            label3.Text = "AAD Object ID To Lookup:";
             // 
             // aadTB
             // 
-            this.aadTB.Location = new System.Drawing.Point(162, 12);
-            this.aadTB.Name = "aadTB";
-            this.aadTB.Size = new System.Drawing.Size(693, 23);
-            this.aadTB.TabIndex = 6;
+            aadTB.Location = new Point(162, 12);
+            aadTB.Name = "aadTB";
+            aadTB.Size = new Size(693, 23);
+            aadTB.TabIndex = 6;
             // 
             // LoadAccountsBTN
             // 
-            this.LoadAccountsBTN.Location = new System.Drawing.Point(214, 41);
-            this.LoadAccountsBTN.Name = "LoadAccountsBTN";
-            this.LoadAccountsBTN.Size = new System.Drawing.Size(141, 23);
-            this.LoadAccountsBTN.TabIndex = 7;
-            this.LoadAccountsBTN.Text = "Refresh Account(s) List";
-            this.LoadAccountsBTN.UseVisualStyleBackColor = true;
-            this.LoadAccountsBTN.Click += new System.EventHandler(this.LoadAccounts_Click);
+            LoadAccountsBTN.Location = new Point(214, 41);
+            LoadAccountsBTN.Name = "LoadAccountsBTN";
+            LoadAccountsBTN.Size = new Size(141, 23);
+            LoadAccountsBTN.TabIndex = 7;
+            LoadAccountsBTN.Text = "Refresh Account(s) List";
+            LoadAccountsBTN.UseVisualStyleBackColor = true;
+            LoadAccountsBTN.Click += LoadAccounts_Click;
             // 
             // DeleteAccountBTN
             // 
-            this.DeleteAccountBTN.Location = new System.Drawing.Point(523, 41);
-            this.DeleteAccountBTN.Name = "DeleteAccountBTN";
-            this.DeleteAccountBTN.Size = new System.Drawing.Size(145, 23);
-            this.DeleteAccountBTN.TabIndex = 9;
-            this.DeleteAccountBTN.Text = "Delete Selected Account";
-            this.DeleteAccountBTN.UseVisualStyleBackColor = true;
-            this.DeleteAccountBTN.Click += new System.EventHandler(this.DeleteAccountBTN_Click);
+            DeleteAccountBTN.Location = new Point(523, 41);
+            DeleteAccountBTN.Name = "DeleteAccountBTN";
+            DeleteAccountBTN.Size = new Size(145, 23);
+            DeleteAccountBTN.TabIndex = 9;
+            DeleteAccountBTN.Text = "Delete Selected Account";
+            DeleteAccountBTN.UseVisualStyleBackColor = true;
+            DeleteAccountBTN.Click += DeleteAccountBTN_Click;
             // 
             // UpdateAccountBTN
             // 
-            this.UpdateAccountBTN.Location = new System.Drawing.Point(361, 41);
-            this.UpdateAccountBTN.Name = "UpdateAccountBTN";
-            this.UpdateAccountBTN.Size = new System.Drawing.Size(156, 23);
-            this.UpdateAccountBTN.TabIndex = 10;
-            this.UpdateAccountBTN.Text = "Update Selected Account";
-            this.UpdateAccountBTN.UseVisualStyleBackColor = true;
-            this.UpdateAccountBTN.Click += new System.EventHandler(this.UpdateAccountBTN_Click);
+            UpdateAccountBTN.Location = new Point(361, 41);
+            UpdateAccountBTN.Name = "UpdateAccountBTN";
+            UpdateAccountBTN.Size = new Size(156, 23);
+            UpdateAccountBTN.TabIndex = 10;
+            UpdateAccountBTN.Text = "Update Selected Account";
+            UpdateAccountBTN.UseVisualStyleBackColor = true;
+            UpdateAccountBTN.Click += UpdateAccountBTN_Click;
             // 
             // Accounts
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(868, 450);
-            this.Controls.Add(this.UpdateAccountBTN);
-            this.Controls.Add(this.DeleteAccountBTN);
-            this.Controls.Add(this.LoadAccountsBTN);
-            this.Controls.Add(this.aadTB);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.accountsDB);
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "Accounts";
-            this.Text = "Accounts";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form_Closed);
-            this.Load += new System.EventHandler(this.Formload);
-            ((System.ComponentModel.ISupportInitialize)(this.accountsDB)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(868, 450);
+            Controls.Add(UpdateAccountBTN);
+            Controls.Add(DeleteAccountBTN);
+            Controls.Add(LoadAccountsBTN);
+            Controls.Add(aadTB);
+            Controls.Add(label3);
+            Controls.Add(accountsDB);
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "Accounts";
+            Text = "Accounts";
+            FormClosed += Form_Closed;
+            Load += Formload;
+            ((System.ComponentModel.ISupportInitialize)accountsDB).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
